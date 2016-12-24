@@ -60,13 +60,6 @@ module Koudoku
       send "current_#{Koudoku.subscriptions_owned_by}"
     end
 
-    def redirect_to_sign_up
-      # this is a Devise default variable and thus should not change its name
-      # when we change subscription owners from :user to :company 
-      session["user_return_to"] = new_subscription_path(plan: params[:plan])
-      redirect_to new_registration_path(Koudoku.subscriptions_owned_by.to_s)
-    end
-
     def index
 
       # don't bother showing the index if they've already got a subscription.
@@ -86,18 +79,12 @@ module Koudoku
     def new
       if no_owner?
 
-        if defined?(Devise)
-
           # by default these methods support devise.
           if current_owner
             redirect_to new_owner_subscription_path(current_owner, plan: params[:plan])
           else
-            redirect_to_sign_up
+            redirect_to root_path
           end
-          
-        else
-          raise I18n.t('koudoku.failure.feature_depends_on_devise')
-        end
 
       else
         @subscription = ::Subscription.new
